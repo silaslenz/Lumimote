@@ -1,7 +1,6 @@
 package se.silenz.lumimote
 
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -39,35 +38,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
         queue.add(autoreviewunlock())
-//        queue.add(pinch())
-//        queue.add(pinchStop())
 
         while (true) {
             socket.receive(receivedPacket)
+            try {
+                val imageOffset = 2 + 30 + receivedPacket.data[31].toUByte().toInt()
+                val bmp =
+                    BitmapFactory.decodeByteArray(receivedPacket.data, imageOffset, receivedPacket.length - imageOffset)
 
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                try {
-                    val imageOffset = 2+30+receivedPacket.data[31].toUByte().toInt()
-                    val bmp = BitmapFactory.decodeByteArray(receivedPacket.data, imageOffset, receivedPacket.length - imageOffset)
-
-
-                    runOnUiThread {
-                        imageView.setCurrentImage(bmp)
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//                            imageView.setCurrentImage(img)
-//                        }
-
-                    }
-                } catch (e: Exception) {
-                    Log.e("ViewFinder", e.toString())
+                runOnUiThread {
+                    imageView.setCurrentImage(bmp)
 
                 }
-            } else {
-                TODO("VERSION.SDK_INT < P")
+            } catch (e: Exception) {
+                Log.e("ViewFinder", e.toString())
+
             }
-
-
         }
     }
 
