@@ -33,6 +33,7 @@ internal fun pinchStop(): StringRequest {
     return createRequest("http://192.168.54.1/cam.cgi?mode=camctrl&type=pinch&value=stop&value2=675/161/582/692")
 }
 
+
 private fun createRequest(url: String): StringRequest {
     return StringRequest(
         Request.Method.GET, url,
@@ -40,7 +41,8 @@ private fun createRequest(url: String): StringRequest {
             Log.d("Network", response)
         },
         Response.ErrorListener { response ->
-            Log.e("VOLLEY", response.message)
+
+//            Log.e("VOLLEY", response.message)
         }
     )
 }
