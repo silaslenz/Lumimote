@@ -21,6 +21,7 @@ import kotlin.concurrent.fixedRateTimer
 
 class MainActivity : AppCompatActivity() {
 
+    @ExperimentalUnsignedTypes
     private fun getImage() {
         println("un func")
         val socket = DatagramSocket(49199)
@@ -47,8 +48,8 @@ class MainActivity : AppCompatActivity() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 try {
-//                    println(receivedPacket.data.size)
-                    val bmp = BitmapFactory.decodeByteArray(receivedPacket.data, 168, receivedPacket.length - 168)
+                    val imageOffset = 2+30+receivedPacket.data[31].toUByte().toInt()
+                    val bmp = BitmapFactory.decodeByteArray(receivedPacket.data, imageOffset, receivedPacket.length - imageOffset)
 
 
                     runOnUiThread {
