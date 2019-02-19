@@ -1,10 +1,9 @@
 package se.silenz.lumimote
 
-import android.graphics.ImageDecoder
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -13,15 +12,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.nio.ByteBuffer
 import kotlin.concurrent.fixedRateTimer
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,25 +47,19 @@ class MainActivity : AppCompatActivity() {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 try {
+//                    println(receivedPacket.data.size)
+                    val bmp = BitmapFactory.decodeByteArray(receivedPacket.data, 168, receivedPacket.length - 168)
 
-                    val img = ImageDecoder.decodeDrawable(
-                        ImageDecoder.createSource(
-                            ByteBuffer.wrap(
-                                receivedPacket.data.copyOfRange(
-                                    168,
-                                    receivedPacket.data.size
-                                )
-                            )
-                        )
-                    )
 
                     runOnUiThread {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            imageView.setImageDrawable(img)
-                        }
+                        imageView.setCurrentImage(bmp)
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//                            imageView.setCurrentImage(img)
+//                        }
 
                     }
                 } catch (e: Exception) {
+                    Log.e("ViewFinder", e.toString())
 
                 }
             } else {
@@ -88,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         capture_button.setOnClickListener { captureImage() }
 
         val queue = Volley.newRequestQueue(this)
-        fab.setOnClickListener() {
+        fab.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 queue.add(recMode())
                 queue.add(enableStream())

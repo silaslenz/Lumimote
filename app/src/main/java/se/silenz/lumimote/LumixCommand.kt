@@ -1,12 +1,9 @@
 package se.silenz.lumimote
 
 import android.util.Log
-import android.view.View
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import kotlin.coroutines.coroutineContext
 
 internal fun recMode(): StringRequest {
     return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=recmode")
@@ -21,18 +18,19 @@ internal fun enableStream(): StringRequest {
 }
 
 internal fun stopStream(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=stopstream");
+    return createRequest("http://192.168.54.1/cam.cgi?mode=stopstream")
 }
 
 internal fun autoreviewunlock(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=autoreviewunlock");
+    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=autoreviewunlock")
 }
 
 internal fun pinch(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camctrl&type=pinch&value=continue&value2=675/161/582/692");
+    return createRequest("http://192.168.54.1/cam.cgi?mode=camctrl&type=pinch&value=continue&value2=675/161/582/692")
 }
+
 internal fun pinchStop(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camctrl&type=pinch&value=stop&value2=675/161/582/692");
+    return createRequest("http://192.168.54.1/cam.cgi?mode=camctrl&type=pinch&value=stop&value2=675/161/582/692")
 }
 
 private fun createRequest(url: String): StringRequest {
@@ -42,7 +40,7 @@ private fun createRequest(url: String): StringRequest {
             Log.d("Network", response)
         },
         Response.ErrorListener { response ->
-            Log.e("VOLLEY", response.message);
+            Log.e("VOLLEY", response.message)
         }
     )
 }
