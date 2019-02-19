@@ -6,12 +6,18 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.StringReader
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -19,7 +25,7 @@ import kotlin.concurrent.fixedRateTimer
 
 
 class MainActivity : AppCompatActivity() {
-
+    val currentSettings = mutableMapOf<String, String>()
     @ExperimentalUnsignedTypes
     private fun getImage() {
         println("un func")
@@ -35,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         fixedRateTimer("timer", false, 0, 5000) {
             this@MainActivity.runOnUiThread {
                 queue.add(enableStream())
+                queue.add(getXMLData())
             }
         }
         queue.add(autoreviewunlock())
@@ -100,5 +107,32 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun getXMLData(): StringRequest {
+        return StringRequest(
+            Request.Method.GET, "http://192.168.54.1/cam.cgi?mode=getinfo&type=curmenu",
+            Response.Listener { response ->
+                val factory = XmlPullParserFactory.newInstance()
+                factory.isNamespaceAware = true
+                val xpp = factory.newPullParser()
+
+                xpp.setInput(StringReader(response))
+                var eventType = xpp.eventType
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG) {
+                        if (xpp.getAttributeValue(null,"value")!=null){
+                            currentSettings[xpp.getAttributeValue(null,"id")]=xpp.getAttributeValue(null,"value")
+                        }
+                    }
+                    eventType = xpp.next()
+                }
+                textView.text = currentSettings["menu_item_id_sensitivity"]
+            },
+            Response.ErrorListener { response ->
+
+                //            Log.e("VOLLEY", response.message)
+            }
+        )
     }
 }
