@@ -34,6 +34,12 @@ internal fun pinchStop(): StringRequest {
 }
 
 
+internal fun setSetting(type: String, value: String): StringRequest {
+    return createRequest("http://192.168.54.1/cam.cgi?mode=setsetting&type=${type}&value=${value}")
+
+}
+
+
 private fun createRequest(url: String): StringRequest {
     return StringRequest(
         Request.Method.GET, url,

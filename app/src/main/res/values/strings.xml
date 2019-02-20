@@ -2,4 +2,6 @@
     <string name="app_name">Lumimote</string>
     <string name="action_settings">Settings</string>
     <string name="capture">Capture</string>
+    <string name="iso">ISO %1$s</string>
+    <string name="ev">EV</string>
 </resources>

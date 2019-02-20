@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.Response
@@ -26,6 +27,7 @@ import kotlin.concurrent.fixedRateTimer
 
 class MainActivity : AppCompatActivity() {
     val currentSettings = mutableMapOf<String, String>()
+    val isos = mutableListOf<String>()
     @ExperimentalUnsignedTypes
     private fun getImage() {
         println("un func")
@@ -78,10 +80,21 @@ class MainActivity : AppCompatActivity() {
             Thread.sleep(100)
             println("Start stream")
             getImage()
-
-
         }
+        isoButton.setOnClickListener {
+
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Pick a color")
+            builder.setItems(isos.toTypedArray()) { dialog, which ->
+                val queue = Volley.newRequestQueue(this)
+                queue.add(setSetting("iso", isos[which]))
+                queue.add(getXMLData())
+            }
+            builder.show()
+        }
+
     }
+
 
     private fun captureImage() {
         val queue = Volley.newRequestQueue(this)
@@ -110,6 +123,7 @@ class MainActivity : AppCompatActivity() {
         return StringRequest(
             Request.Method.GET, "http://192.168.54.1/cam.cgi?mode=getinfo&type=curmenu",
             Response.Listener { response ->
+                isos.clear()
                 val factory = XmlPullParserFactory.newInstance()
                 factory.isNamespaceAware = true
                 val xpp = factory.newPullParser()
@@ -118,13 +132,18 @@ class MainActivity : AppCompatActivity() {
                 var eventType = xpp.eventType
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     if (eventType == XmlPullParser.START_TAG) {
-                        if (xpp.getAttributeValue(null,"value")!=null){
-                            currentSettings[xpp.getAttributeValue(null,"id")]=xpp.getAttributeValue(null,"value")
+                        if (xpp.getAttributeValue(null, "value") != null) {
+                            currentSettings[xpp.getAttributeValue(null, "id")] = xpp.getAttributeValue(null, "value")
+                        } else if (xpp.getAttributeValue(null, "enable") == "yes") {
+                            if (xpp.getAttributeValue(null, "id").contains("menu_item_id_sensitivity_")) {
+                                isos.add(xpp.getAttributeValue(null, "id").split("menu_item_id_sensitivity_")[1])
+                            }
+
                         }
                     }
                     eventType = xpp.next()
                 }
-                textView.text = currentSettings["menu_item_id_sensitivity"]
+                isoButton.text = getString(R.string.iso, currentSettings["menu_item_id_sensitivity"])
             },
             Response.ErrorListener { response ->
 
