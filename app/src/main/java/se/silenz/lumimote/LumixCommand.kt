@@ -6,11 +6,11 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 
 internal fun recMode(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=recmode")
+    return camCMD("recmode")
 }
 
 internal fun capture(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=capture")
+    return camCMD("capture")
 }
 
 internal fun enableStream(): StringRequest {
@@ -22,7 +22,7 @@ internal fun stopStream(): StringRequest {
 }
 
 internal fun autoreviewunlock(): StringRequest {
-    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=autoreviewunlock")
+    return camCMD("autoreviewunlock")
 }
 
 internal fun pinch(): StringRequest {
@@ -39,6 +39,10 @@ internal fun setSetting(type: String, value: String): StringRequest {
 
 }
 
+internal fun camCMD(value: String): StringRequest {
+    return createRequest("http://192.168.54.1/cam.cgi?mode=camcmd&value=$value")
+}
+
 
 private fun createRequest(url: String): StringRequest {
     return StringRequest(
@@ -48,7 +52,7 @@ private fun createRequest(url: String): StringRequest {
         },
         Response.ErrorListener { response ->
 
-//            Log.e("VOLLEY", response.message)
+            //            Log.e("VOLLEY", response.message)
         }
     )
 }

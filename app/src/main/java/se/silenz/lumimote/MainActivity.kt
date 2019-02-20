@@ -92,6 +92,10 @@ class MainActivity : AppCompatActivity() {
             }
             builder.show()
         }
+        oneshotAF.setOnClickListener {
+            val queue = Volley.newRequestQueue(this)
+            queue.add(camCMD("oneshot_af"))
+        }
 
     }
 

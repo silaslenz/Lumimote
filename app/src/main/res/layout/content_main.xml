@@ -54,6 +54,11 @@
             android:layout_height="50dp"
             android:text="@string/ev" />
 
+        <Button
+            android:id="@+id/oneshotAF"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="@string/oneshotAF" />
     </androidx.gridlayout.widget.GridLayout>
 
 
