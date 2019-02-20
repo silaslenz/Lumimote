@@ -12,9 +12,6 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.StringReader
@@ -72,18 +69,7 @@ class MainActivity : AppCompatActivity() {
         capture_button.setOnClickListener { captureImage() }
 
         val queue = Volley.newRequestQueue(this)
-        fab.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                queue.add(recMode())
-                queue.add(enableStream())
-                Thread.sleep(100)
-                println("Start stream")
-                getImage()
 
-
-            }
-
-        }
     }
 
     private fun captureImage() {
@@ -109,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getXMLData(): StringRequest {
+    fun getXMLData(): StringRequest {
         return StringRequest(
             Request.Method.GET, "http://192.168.54.1/cam.cgi?mode=getinfo&type=curmenu",
             Response.Listener { response ->
@@ -121,8 +107,8 @@ class MainActivity : AppCompatActivity() {
                 var eventType = xpp.eventType
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     if (eventType == XmlPullParser.START_TAG) {
-                        if (xpp.getAttributeValue(null,"value")!=null){
-                            currentSettings[xpp.getAttributeValue(null,"id")]=xpp.getAttributeValue(null,"value")
+                        if (xpp.getAttributeValue(null, "value") != null) {
+                            currentSettings[xpp.getAttributeValue(null, "id")] = xpp.getAttributeValue(null, "value")
                         }
                     }
                     eventType = xpp.next()
