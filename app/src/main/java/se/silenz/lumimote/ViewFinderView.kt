@@ -14,14 +14,14 @@ import android.view.View
 class ViewFinderView(context: Context?, st: AttributeSet) : SurfaceView(context, st) {
     private var currentImage: Bitmap? = null
 
-    private var ViewFinderWidth= 100
+    private var viewFinderWidth = 100
     private var viewFinderHeight = 0
 
 
     init {
         setWillNotDraw(false)
         addOnLayoutChangeListener { view: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int ->
-            ViewFinderWidth = right - left
+            viewFinderWidth = right - left
         }
     }
 
@@ -32,10 +32,10 @@ class ViewFinderView(context: Context?, st: AttributeSet) : SurfaceView(context,
         currentImage = bitmap
         // compute the height of the view once we know the bitmap's width and height
         if (viewFinderHeight == 0) {
-            val factor = ViewFinderWidth.toFloat() / bitmap.width.toFloat()
+            val factor = viewFinderWidth.toFloat() / bitmap.width.toFloat()
             viewFinderHeight = (currentImage!!.height * factor).toInt()
         }
-        currentImage = Bitmap.createScaledBitmap(currentImage!!, ViewFinderWidth, viewFinderHeight, false)
+        currentImage = Bitmap.createScaledBitmap(currentImage!!, viewFinderWidth, viewFinderHeight, false)
         invalidate()
     }
 

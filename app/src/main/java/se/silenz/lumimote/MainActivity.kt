@@ -26,8 +26,8 @@ import kotlin.concurrent.fixedRateTimer
 
 
 class MainActivity : AppCompatActivity() {
-    val currentSettings = mutableMapOf<String, String>()
-    val isos = mutableListOf<String>()
+    private val currentSettings = mutableMapOf<String, String>()
+    private val isos = mutableListOf<String>()
     @ExperimentalUnsignedTypes
     private fun getImage() {
         println("un func")
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getXMLData(): StringRequest {
+    private fun getXMLData(): StringRequest {
         return StringRequest(
             Request.Method.GET, "http://192.168.54.1/cam.cgi?mode=getinfo&type=curmenu",
             Response.Listener { response ->
