@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                     BitmapFactory.decodeByteArray(receivedPacket.data, imageOffset, receivedPacket.length - imageOffset)
 
                 runOnUiThread {
-                    imageView.setCurrentImage(bmp)
+                    viewFinder.setCurrentImage(bmp)
 
                 }
             } catch (e: Exception) {
@@ -94,7 +95,28 @@ class MainActivity : AppCompatActivity() {
         }
         oneshotAF.setOnClickListener {
             val queue = Volley.newRequestQueue(this)
-            queue.add(camCMD("oneshot_af"))
+            queue.add(camCmd("oneshot_af"))
+        }
+
+        viewFinder.setOnTouchListener { v, event ->
+
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                val queue = Volley.newRequestQueue(this)
+                val location =
+                    ((event.x * 1000) / viewFinder.viewFinderWidth).toInt().toString() + "/" + ((event.y * 1000) / viewFinder.viewFinderHeight).toInt().toString()
+                queue.add(camCtrl("touch", location, "on"))
+
+            } else if (event.action == MotionEvent.ACTION_UP) {
+                val queue = Volley.newRequestQueue(this)
+                val location =
+                    ((event.x * 1000) / viewFinder.viewFinderWidth).toInt().toString() + "/" + ((event.y * 1000) / viewFinder.viewFinderHeight).toInt().toString()
+                queue.add(camCtrl("touch", location, "off"))
+            }
+            val d = Log.d(
+                "ViewFinder",
+                "Touched at ${event.x / viewFinder.viewFinderWidth * 1000}, ${event.y / viewFinder.viewFinderHeight * 1000} ${event.action}"
+            )
+            true
         }
 
     }

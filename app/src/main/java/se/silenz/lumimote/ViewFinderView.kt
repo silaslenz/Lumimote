@@ -8,14 +8,15 @@ import android.util.AttributeSet
 import android.view.SurfaceView
 import android.view.View
 
+
 /**
  * Based on https://github.com/mbmb5/Eylca/blob/master/app/src/main/java/mbmb5/extendedcontrolapp/StreamView.java
  */
 class ViewFinderView(context: Context?, st: AttributeSet) : SurfaceView(context, st) {
     private var currentImage: Bitmap? = null
 
-    private var viewFinderWidth = 100
-    private var viewFinderHeight = 0
+    internal var viewFinderWidth = 100
+    internal var viewFinderHeight = 0
 
 
     init {
