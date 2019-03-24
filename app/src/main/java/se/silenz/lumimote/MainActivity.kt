@@ -1,6 +1,7 @@
 package se.silenz.lumimote
 
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -31,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private val isos = mutableListOf<String>()
     @ExperimentalUnsignedTypes
     private fun getImage() {
-        println("un func")
         val socket = DatagramSocket(49199)
 
         val udpPacketBuffer = ByteArray(35000)
@@ -52,7 +52,33 @@ class MainActivity : AppCompatActivity() {
         while (true) {
             socket.receive(receivedPacket)
             try {
+                // https://gist.github.com/FWeinb/2d51fe63d0f9f5fc4d32d8a420b2c18d
+                val additionalMetadata = bytesToInt(receivedPacket.data[47], receivedPacket.data[48])
                 val imageOffset = 2 + 30 + receivedPacket.data[31].toUByte().toInt()
+                val metaData = receivedPacket.data.slice((48 + 16)..48 + additionalMetadata)
+                if (additionalMetadata == 1282) {
+                    //TODO: Find better way to detect focus data. This only works for exactly four focus boxes (and probably only on this camera).
+                    val boxes =
+                        mutableListOf<Rect>() // List of boxes, <TopLeft<X,Y>, BottomRight<X,Y>>
+                    for (i in 0 until 4) {
+                        val topleftX = bytesToInt(metaData[16 * i], metaData[1 + 16 * i])
+                        val topleftY = bytesToInt(metaData[2 + 16 * i], metaData[3 + 16 * i])
+                        val bottomrightX =
+                            bytesToInt(metaData[4 + 16 * i], metaData[5 + 16 * i])
+                        val bottomrightY =
+                            bytesToInt(metaData[6 + 16 * i], metaData[7 + 16 * i])
+                        boxes.add(Rect(topleftX, topleftY, bottomrightX, bottomrightY))
+                    }
+                    for (box in boxes) {
+
+                        box.left = (box.left * (0.001 * viewFinder.viewFinderWidth)).toInt()
+                        box.right = (box.right * (0.001 * viewFinder.viewFinderWidth)).toInt()
+                        box.top = (box.top * (0.001 * viewFinder.viewFinderHeight)).toInt()
+                        box.bottom = (box.bottom * (0.001 * viewFinder.viewFinderHeight)).toInt()
+                    }
+                    viewFinder.boxes = boxes.toTypedArray()
+                }
+                // TODO: Add else to remove focus boxes from viewfinder again
                 val bmp =
                     BitmapFactory.decodeByteArray(receivedPacket.data, imageOffset, receivedPacket.length - imageOffset)
 
@@ -66,6 +92,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun bytesToInt(byte1: Byte, byte2: Byte) =
+        ((byte1.toInt() and 255) shl 8) or (byte2.toInt() and 255)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Pick a color")
-            builder.setItems(isos.toTypedArray()) { dialog, which ->
+            builder.setItems(isos.toTypedArray()) { _, which ->
                 val queue = Volley.newRequestQueue(this)
                 queue.add(setSetting("iso", isos[which]))
                 queue.add(getXMLData())
